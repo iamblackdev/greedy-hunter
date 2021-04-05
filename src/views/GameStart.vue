@@ -1,36 +1,48 @@
 <template>
 
     <div class="game-start">
-      <!--  -->
-      <div class="game-heding">
-        <img src="@/assets/heading-character.png" alt="">
-      </div>
+      
 
       <!--  -->
-      <div class="game-status">
-        <div class="game-status-header">
-          <h1>{{ status }}</h1>
+      <div>
+        
+        <!--  -->
+        <div :class="{gameHeading: startAnimations}">
+          <img src="@/assets/heading-character.png" alt="">
         </div>
-        <div class="game-status-details">
-          <p>{{ status2 }}</p>
-          <p>{{ status3 }}</p>
+
+        <!--  -->
+        <div class="game-status" :class="{animateGameStatus: startAnimations}">
+          <div class="game-status-header">
+            <h1>{{ status }}</h1>
+          </div>
+          <div class="game-status-details">
+            <p>{{ status2 }}</p>
+            <p>{{ status3 }}</p>
+          </div>
         </div>
+
+        <!--  -->
+        <div class="game-action" :class="{animateGameAction: startAnimations}">
+          <div class="select-grid">
+            <form @submit.prevent="startGame">
+              <div class="error" v-if="error">
+                Maximum grid = 12 <br> Minimum grid = 5
+              </div>
+              Game grid: 
+              <input type="number" v-model="grid" min="5" max="12" @keyup="checkInput">
+
+              <div><button class="btn" :disabled="error">Start Game</button></div>
+            </form>
+          </div>
+        </div>
+
+
       </div>
+
+      
   
-      <!--  -->
-      <div class="game-action">
-        <div class="select-grid">
-          <form @submit.prevent="startGame">
-            <div class="error" v-if="error">
-              Maximum grid = 12 <br> Minimum grid = 5
-            </div>
-            Game grid: 
-            <input type="number" v-model="grid" min="5" max="12" @keyup="checkInput">
-
-            <div><button class="btn" :disabled="error">Start Game</button></div>
-          </form>
-        </div>
-      </div>
+      
     </div>
   
 </template>
@@ -46,7 +58,8 @@ export default {
       error: false,
       status: 'Greedy Hunter',
       status2: 'The aim is to eat all the food in record time',
-      status3: 'Confiure your game grid below 👇🏼'
+      status3: 'Confiure your game grid below 👇🏼',
+      startAnimations: false
     }
   },
   methods: {
@@ -61,9 +74,13 @@ export default {
 
       // STORE THE NUMBER OF GRID IN LOCALSTORAGE
       localStorage.setItem('storedGrid', this.grid)
+      
+      this.startAnimations = true
+      setTimeout(() => {
+        // ROUTER PUSH TO GAMEPLAY
+        this.$router.push({name: 'gamePlay', params:{ grid:this.grid}})  
+      }, 2100);
 
-      // ROUTER PUSH TO GAMEPLAY
-      this.$router.push({name: 'gamePlay', params:{ grid:this.grid}})
     },
   },
   mounted() {
@@ -89,7 +106,16 @@ export default {
   text-align: center;
   padding-top: 10px;
   background-color: $primary-color;
-  // transform: scale(.7);
+
+  .gameHeading{
+    position: relative;
+    animation-name: animations;
+    animation-duration: .7s;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+    
+  }
+
   .game-status{
     margin: 20px 0;
     &-header{
@@ -104,6 +130,14 @@ export default {
         margin-top: 10px;
       }
     }
+  }
+  .game-status.animateGameStatus{
+    position: relative;
+    animation-name: animations;
+    animation-duration: .7s;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+    animation-delay: .7s;
   }
 
   .game-action{
@@ -127,7 +161,7 @@ export default {
       border-radius: 5px;
     }
     .btn{
-      margin-top: 40px;
+      margin-top: 30px;
       padding: 20px 50px;
       background-color: #853594;
       color: $light-color;
@@ -141,6 +175,27 @@ export default {
 
     }
   }
+  .game-action.animateGameAction{
+    position: relative;
+    animation-name: animations;
+    animation-duration: .7s;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+    animation-delay: 1.4s;
+  }
+}
+@keyframes animations {
+  0%{ transform: scale(1); opacity: 1;}
+  10%{ transform: scale(1.1); opacity: 1;}
+  20%{ transform: scale(1.2); top: 0px; opacity: 1;}
+  30%{ transform: scale(1.1); top: 0px; opacity: 1;}
+  40%{ transform: scale(1); top: 5px; opacity: 1;}
+  50%{ transform: scale(.9); top: 10px; opacity: .9;}
+  60%{ transform: scale(.7); top: 15px; opacity: .7;}
+  70%{ transform: scale(.5); top: 20px; opacity: .5;}
+  80%{ transform: scale(.3); top: 25px; opacity: .3;}
+  90%{ transform: scale(.2); top: 30px; opacity: .2;}
+  100%{ transform: scale(.1); top: 35px; opacity: 0;}
 }
 
 @media (min-width: 768px) { 

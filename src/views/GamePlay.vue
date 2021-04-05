@@ -1,48 +1,52 @@
 <template>
   <div class="game-play">
 
-    <div class="grid">
+    <div class="grid-wrapper">
 
-      <div class="grid-header">
+      <div class="grid">
 
-        <div class="game-grid-info">
-          Grid {{ grid }} x {{ grid }}
-        </div>
+        <div class="grid-header">
 
-        <div class="game-health">
+          <div class="game-grid-info">
+            Grid {{ grid }} x {{ grid }}
+          </div>
 
-          <div class="health-wrapper" @click="generate()">
-            <img class="heart" src="../assets/heart.png" alt="">
-            <div class="progressBar">
-              <div class="barStatus" ref="barStatus"></div>
+          <div class="game-health">
+
+            <div class="health-wrapper" @click="generate()">
+              <img class="heart" src="../assets/heart.png" alt="">
+              <div class="progressBar">
+                <div class="barStatus" ref="barStatus"></div>
+              </div>
             </div>
+
+          </div>
+
+          <div class="game-time">
+            <span class="time-text">Time Spent: </span> {{ minutes }}:{{ seconds }} secs
           </div>
 
         </div>
 
-        <div class="game-time">
-          <span class="time-text">Time Spent: </span> {{ minutes }}:{{ seconds }} secs
+        <div class="grid-boxes" ref="gridBoxes">
+
+          <div v-for="gridbox in gridBoxes" :key="gridbox.id" @click="clickbox(gridbox)" class="box">
+            <div v-show="gridbox.characterActive"  :class="{foodscore: gridbox.characterActive}" >{{ gridbox.foodScore }}</div>
+            <img v-show="gridbox.foodActive" class="food" src="../assets/food.png" alt="">
+            <img v-if="gridbox.characterActive" class="character" src="../assets/character.png" alt="">
+          </div>
+              
         </div>
 
-      </div>
-
-      <div class="grid-boxes" ref="gridBoxes">
-
-        <div v-for="gridbox in gridBoxes" :key="gridbox.id" @click="clickbox(gridbox)" class="box">
-          <div v-show="gridbox.characterActive"  :class="{foodscore: gridbox.characterActive}" >{{ gridbox.foodScore }}</div>
-          <img v-if="gridbox.foodActive" class="food" src="../assets/food.png" alt="">
-          <img v-if="gridbox.characterActive" class="food" src="../assets/character.png" alt="">
+        <div class="grid-bottom" >
+          <div class="maximum-moves">
+            Maximum moves: {{ maxMove }}
+          </div>
+          <div class="total-moves">
+            Total moves: {{ noOfMoves }}
+          </div>
         </div>
-             
-      </div>
 
-      <div class="grid-bottom" >
-        <div class="maximum-moves">
-          Maximum moves: {{ maxMove }}
-        </div>
-        <div class="total-moves">
-          Total moves: {{ noOfMoves }}
-        </div>
       </div>
 
     </div>
@@ -191,16 +195,15 @@ export default {
 
     // MAKE RANDOM FOOD ACTIVE
     let newgridNumber = this.grid
-
     for (let i = 1; i <= newgridNumber; i++) {
-      let randomNumber = Math.floor(Math.random() * this.noOfBoxes)
-      if (this.randomNumberArray.includes(randomNumber)) {
-        newgridNumber++
-      }else{
-        this.randomNumberArray.push(randomNumber)
-        this.gridBoxes[randomNumber].foodActive = true
+        let randomNumber = Math.floor(Math.random() * this.noOfBoxes)
+        if (this.randomNumberArray.includes(randomNumber)) {
+          newgridNumber++
+        }else{
+          this.randomNumberArray.push(randomNumber)
+          this.gridBoxes[randomNumber].foodActive = true
+        }
       }
-    }
 
     //ATTACHING SCORES TO EACH FOOD
     for (let i = 0; i < scores.length; i++) {
@@ -222,7 +225,6 @@ export default {
 
     // START TIME
     this.startTime()
-    console.log(this.gridBoxes);
 
   }
 }
@@ -250,6 +252,11 @@ export default {
       max-width: 706px;
       margin: 0 auto;
       position: relative;
+      animation-name: grid-animations;
+      animation-duration: .5s;
+      animation-timing-function: ease;
+      animation-fill-mode: forwards;    
+      
       
       &-header{
         display: flex;
@@ -335,6 +342,15 @@ export default {
           }
           .food{
             width: 80%;
+            transform: scale(0);
+            animation-name: grid-animations;
+            animation-duration: .5s;
+            animation-timing-function: ease;
+            animation-delay: .6s;
+            animation-fill-mode: forwards;  
+          }
+          .character{
+            width: 80%;
           }
         }
       }
@@ -347,6 +363,19 @@ export default {
 
     }
   }
+  @keyframes grid-animations {
+  0%{ transform: scale(0); opacity: 0;}
+  10%{ transform: scale(.1); opacity: .1;}
+  20%{ transform: scale(.2);  opacity: .2;}
+  30%{ transform: scale(.3); opacity: .3;}
+  40%{ transform: scale(.4); opacity: .4;}
+  50%{ transform: scale(.5); opacity: .5;}
+  60%{ transform: scale(.6); opacity: .6;}
+  70%{ transform: scale(.7); opacity: .7;}
+  80%{ transform: scale(.8); opacity: .8;}
+  90%{ transform: scale(.9); opacity: .9;}
+  100%{ transform: scale(1); opacity: 1;}
+}
   @keyframes food-score-animate {
     from{right: 12%; opacity: 0;}
     50%{right: 15%; opacity: 1;}
@@ -359,6 +388,9 @@ export default {
           .box{
             .food{
               width: 60%;
+            }
+            .character{
+              width: 60%; 
             }
           }
         }
@@ -376,6 +408,9 @@ export default {
         &-boxes{
           .box{
             .food{
+              width: 40%;
+            }
+            .character{
               width: 40%;
             }
           }
@@ -397,6 +432,9 @@ export default {
               right: 30%;
             } 
             .food{
+              width: 30%;
+            }
+            .character{
               width: 30%;
             }
           }
