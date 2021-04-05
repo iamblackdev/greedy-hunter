@@ -14,7 +14,7 @@ const routes = [
     name: 'gamePlay',
     component: gamePlay,
     beforeEnter: (to, from, next) => {
-      if (to.params.grid) {
+      if (to.params.grid || localStorage.getItem('storedGrid')) {
         next()
       } else {
         next({name: 'gameStart'})

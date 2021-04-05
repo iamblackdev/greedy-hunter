@@ -1,36 +1,36 @@
 <template>
 
     <div class="game-start">
-    <!--  -->
-    <div class="game-heding">
-      <img src="@/assets/heading-character.png" alt="">
-    </div>
+      <!--  -->
+      <div class="game-heding">
+        <img src="@/assets/heading-character.png" alt="">
+      </div>
 
-    <!--  -->
-    <div class="game-status">
-      <div class="game-status-header">
-        <h1>{{ status }}</h1>
+      <!--  -->
+      <div class="game-status">
+        <div class="game-status-header">
+          <h1>{{ status }}</h1>
+        </div>
+        <div class="game-status-details">
+          <p>{{ status2 }}</p>
+          <p>{{ status3 }}</p>
+        </div>
       </div>
-      <div class="game-status-details">
-        <p>{{ status2 }}</p>
-        <p>{{ status3 }}</p>
-      </div>
-    </div>
- 
-    <!--  -->
-    <div class="game-action">
-      <div class="select-grid">
-        <form @submit.prevent="startGame">
-          <div class="error" v-if="error">
-            Maximum grid = 12 <br> Minimum grid = 5
-          </div>
-          Game grid: 
-          <input type="number" v-model="grid" min="5" max="12" @keyup="checkInput">
+  
+      <!--  -->
+      <div class="game-action">
+        <div class="select-grid">
+          <form @submit.prevent="startGame">
+            <div class="error" v-if="error">
+              Maximum grid = 12 <br> Minimum grid = 5
+            </div>
+            Game grid: 
+            <input type="number" v-model="grid" min="5" max="12" @keyup="checkInput">
 
-          <div><button class="btn" :disabled="error">Start Game</button></div>
-        </form>
+            <div><button class="btn" :disabled="error">Start Game</button></div>
+          </form>
+        </div>
       </div>
-    </div>
     </div>
   
 </template>
@@ -82,8 +82,6 @@ export default {
 <style lang="scss">
 @import '../scss/config';
 
-
-
 .game-start{
   font-family: 'Inter', sans-serif;
   width: 100%;
@@ -91,6 +89,7 @@ export default {
   text-align: center;
   padding-top: 10px;
   background-color: $primary-color;
+  // transform: scale(.7);
   .game-status{
     margin: 20px 0;
     &-header{

@@ -29,7 +29,7 @@
       <div class="grid-boxes" ref="gridBoxes">
 
         <div v-for="gridbox in gridBoxes" :key="gridbox.id" @click="clickbox(gridbox)" class="box">
-          <div class="foodscore" v-show="gridbox.characterActive" :class="{foodscoreAnimate: gridbox.characterActive}" >{{ gridbox.foodScore }}</div>
+          <div v-show="gridbox.characterActive"  :class="{foodscore: gridbox.characterActive}" >{{ gridbox.foodScore }}</div>
           <img v-if="gridbox.foodActive" class="food" src="../assets/food.png" alt="">
           <img v-if="gridbox.characterActive" class="food" src="../assets/character.png" alt="">
         </div>
@@ -92,7 +92,7 @@ export default {
         this.characterNumber = box.id
         this.makeMove(box)
 
-        if (this.noOfMoves > this.maxMove) {
+        if (this.noOfMoves == this.maxMove && this.foodEaten < this.grid) {
           this.gameOver()
         }
         if (this.foodEaten == this.grid) {
@@ -109,7 +109,8 @@ export default {
           box.characterActive = true
           this.noOfMoves++
           this.foodEaten++
-          this.health += box.foodScore
+          this.health +=  parseInt(box.foodScore.substring(1))
+
           this.$refs.barStatus.style.width = `${this.health}%`
           
           setTimeout(() => {
@@ -131,6 +132,7 @@ export default {
           timeSpent: `Time Spent: ${this.minutes}:${this.seconds} `
         }
       })
+        localStorage.removeItem('storedGrid')
     },
     bravo(){
         setTimeout(() => {
@@ -141,6 +143,7 @@ export default {
             }
           })
         }, 600);
+        localStorage.removeItem('storedGrid')
     },
   },
   mounted(){
@@ -201,7 +204,7 @@ export default {
 
     //ATTACHING SCORES TO EACH FOOD
     for (let i = 0; i < scores.length; i++) {
-      this.gridBoxes[this.randomNumberArray[i]].foodScore = scores[i]
+      this.gridBoxes[this.randomNumberArray[i]].foodScore =  `+${scores[i]}`
     }
 
 
@@ -219,6 +222,7 @@ export default {
 
     // START TIME
     this.startTime()
+    console.log(this.gridBoxes);
 
   }
 }
@@ -245,59 +249,57 @@ export default {
       height: 100%;
       max-width: 706px;
       margin: 0 auto;
+      position: relative;
       
       &-header{
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
 
-
         .game-grid-info{
-        width: 50%;
-        font-size: 14px;
-        line-height: 18px;
-        order: 1;
-      }
-
-      .game-health{
-        position: relative;
-        width: 100%;  
-        margin: 10px 0;
-        order: 3;
-        display: flex;
-        justify-content: center;
-
-        .health-wrapper{
-          display: flex;
-          align-items: center;
+          width: 50%;
+          font-size: 14px;
+          line-height: 18px;
+          order: 1;
         }
-        .heart{
-          text-align: center;
-          transform: scale(.7);
-          margin-left: 24px;
-          z-index: 1;
-        }
-        .progressBar {
+        .game-health{
           position: relative;
-          left: -24px;
-          width: 100px;
-          height: 18.04px;
-          background: linear-gradient(180deg, #853594 47.39%, #692789 47.4%);
-          border: 2.15507px solid #532461;
-          border-radius: 12.661px;
-        }
-        .barStatus {
-          position: absolute;
-          top: -1px;
-          width: 0%;
-          height: 15.77px;
-          background: linear-gradient(180deg, #F07CC3 44.27%, #C5418E 44.28%);
-          border: 1.87639px solid #FFFFFD;
-          border-radius: 11.0238px;
-          transition: width 0.9s ease;   
-        }
+          width: 100%;  
+          margin: 10px 0;
+          order: 3;
+          display: flex;
+          justify-content: center;
 
-      }
+          .health-wrapper{
+            display: flex;
+            align-items: center;
+          } 
+          .heart{
+            text-align: center;
+            transform: scale(.7);
+            margin-left: 24px;
+            z-index: 1;
+          }
+          .progressBar {
+            position: relative;
+            left: -24px;
+            width: 100px;
+            height: 18.04px;
+            background: linear-gradient(180deg, #853594 47.39%, #692789 47.4%);
+            border: 2.15507px solid #532461;
+            border-radius: 12.661px;
+          }
+          .barStatus {
+            position: absolute;
+            top: -1px;
+            width: 0%;
+            height: 15.77px;
+            background: linear-gradient(180deg, #F07CC3 44.27%, #C5418E 44.28%);
+            border: 1.87639px solid #FFFFFD;
+            border-radius: 11.0238px;
+            transition: width 0.9s ease;   
+          }
+        }
       .game-time{
         width: 50%;
         order: 2;
@@ -323,9 +325,13 @@ export default {
           display: flex;
           align-items: center;
           justify-content: center;
-          position: relative;
-          .foodscore{
-            display: none;
+
+         .foodscore{
+            position: absolute;
+            top: 74px;
+            animation-name: food-score-animate;
+            animation-duration: .7s;
+            animation-timing-function: ease-out;
           }
           .food{
             width: 80%;
@@ -341,7 +347,12 @@ export default {
 
     }
   }
-  @media (min-width: 380px) { 
+  @keyframes food-score-animate {
+    from{right: 12%; opacity: 0;}
+    50%{right: 15%; opacity: 1;}
+    to{right: 18%; opacity: 0;}
+  }
+  @media (min-width: 380px) {
     .game-play{
       .grid{
         &-boxes{
@@ -352,6 +363,11 @@ export default {
           }
         }
       }
+    }
+    @keyframes food-score-animate {
+      from{right: 18%;}
+      50%{right: 21%;}
+      to{right: 24%;}
     }
   }
   @media (min-width: 480px) { 
@@ -366,18 +382,31 @@ export default {
         }
       }
     }
+    @keyframes food-score-animate {
+      from{right: 24%;}
+      50%{right: 27%;}
+      to{right: 30%;}
+    }
   }
   @media (min-width: 680px) { 
     .game-play{
       .grid{
         &-boxes{
           .box{
+            .foodscore{
+              right: 30%;
+            } 
             .food{
               width: 30%;
             }
           }
         }
       }
+    }
+    @keyframes food-score-animate {
+      from{right: 30%;}
+      50%{right: 33%;}
+      to{right: 36%;}
     }
   }
   @media (min-width: 768px) { 
@@ -390,11 +419,12 @@ export default {
         &-header{
           
           .game-grid-info{
+            font-size: 18px;
             order: 1;
-            width: 30%;
+            width: 20%;
           }
           .game-health{
-            width: 30%;
+            width: 40%;
             order: 2;
             margin-top: 0px;
             top: -15px;
@@ -414,30 +444,18 @@ export default {
         &-boxes{
           .box{
             .foodscore{
-              display: block;
-              font-size: 13px;
               color: #853594;
-              position: absolute;
-              right: 3px; 
-            }
-            .foodscore.foodscoreAnimate{
-               top: 8px;
-               opacity: 0;
-              animation-name: foodanimate;
-              animation-duration: .7s;
-              animation-timing-function: ease-out;
+              top: 28px;
             }
           }
         }
-
       }
     }
-  }
-
-  @keyframes foodanimate {
-    from{top: 20px; opacity: 0;}
-    50%{top: 13px; opacity: 1;}
-    to{top: 8px; opacity: 0;}
+    @keyframes food-score-animate {
+      from{right: 35%;}
+      50%{right: 38%;}
+      to{right: 41%;}
+    }
   }
   @media (min-width: 992px) { 
      .game-play{
