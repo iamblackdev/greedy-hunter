@@ -2,7 +2,7 @@
   <div class="game-play">
 
     <div class="grid-wrapper">
-
+      <h3>You can make use of your arrow keys</h3>
       <div class="grid">
 
         <!-- GRID HEADER -->
@@ -101,7 +101,7 @@ export default {
       }
     },
 
-    // THIS FUNCTION CALL WHEN THE EACH BOX IS CLICKED
+    // LISTENING FOR CLICK ON EACH BOX
     clickbox(box){
       
       // USING IF STSTEMENT TO CHECK IF CHARACTER CAN MOVE TO THE BOX CLICKED
@@ -112,19 +112,106 @@ export default {
 
         // if box cliked is valid? make move function calls (funcion for chracter movement)
         this.makeMove(box)
-        
-        // checking if number of moves is equal to maximum movement and food eaten is less than the totl food
-        if (this.noOfMoves == this.maxMove && this.foodEaten < this.grid) {
 
-          // call the game over function
-          this.gameOver()
+
+        // fuction checks foe game over or game win
+        this.gameOverOrWin()
+      
+      }
+    },
+
+    // LISTENING FOR ARROW KEY PRESS
+    handleKeydown(e){
+
+      //if key arrow is up
+      if (e.key == 'ArrowUp') {
+
+        // checking if character maximum point
+        if (!(this.characterNumber <= (this.grid - 1))) {
+          
+          //getting new chracter position
+          this.characterNumber = Math.abs(this.characterNumber - this.grid)
+
+          // function for activating food
+          this.foodActiveFunction(this.characterNumber)
+
+          // key press move function for food and character
+          this.keyPressMoveFunction(this.characterNumber)
+          
         }
 
-        // checks if all food are eaten
-        if (this.foodEaten == this.grid) {
-          // call the barvo function
-          this.bravo()
+        this.gameOverOrWin()
+
+      //if key arrow is down
+      }else if (e.key == 'ArrowDown') {        
+
+        // checking if character maximum point
+        if (!(this.characterNumber <= (this.noOfBoxes - 1) && (this.characterNumber > this.noOfBoxes - (this.grid - 1)))) {
+
+          //getting new chracter position
+          this.characterNumber += parseInt(this.grid)
+
+          // function for activating food
+          this.foodActiveFunction(this.characterNumber)
+
+          // key press move function for food and character
+          this.keyPressMoveFunction(this.characterNumber)
         }
+
+        this.gameOverOrWin()
+
+
+      //if key arrow is left
+      }else if (e.key == 'ArrowLeft') {
+
+          // getting the id of all left boxes
+          let firstBoxesOnLeft = []
+          for (let i = 0; i < this.noOfBoxes; i += parseInt(this.grid) ) {
+            firstBoxesOnLeft.push(i);    
+          }
+
+          // checking if character maximum point
+          if (!(firstBoxesOnLeft.includes(this.characterNumber))) {
+
+            //getting new chracter position
+            this.characterNumber = this.characterNumber - 1
+
+            // function for activating food
+            this.foodActiveFunction(this.characterNumber)
+
+            // key press move function for food and character
+            this.keyPressMoveFunction(this.characterNumber)
+            
+          }
+
+          this.gameOverOrWin()
+
+          
+      //if key arrow is right
+      }else if (e.key == 'ArrowRight') {
+
+        // getting the id of all right boxes
+        let lastBoxesOnRight = []
+          for (let i = (this.grid - 1); i < this.noOfBoxes; i += parseInt(this.grid) ) {
+            lastBoxesOnRight.push(i);    
+          }
+
+           // checking if character maximum point  
+          if (!(lastBoxesOnRight.includes(this.characterNumber))) {
+           
+            //getting new chracter position
+            this.characterNumber = this.characterNumber + 1
+
+            // function for activating food
+            this.foodActiveFunction(this.characterNumber)
+
+            // key press move function for food and character
+            this.keyPressMoveFunction(this.characterNumber)
+          }
+
+          this.gameOverOrWin()
+
+
       }
     },
 
@@ -136,17 +223,6 @@ export default {
           // the food is turned back to false
           box.foodActive = false
 
-          // chracter is turned false in all boxes
-          this.gridBoxes.forEach(e => {
-            e.characterActive = false
-          })
-
-          // character if turnbed back to true in the clicked box
-          box.characterActive = true
-
-          // number of moves is incremented
-          this.noOfMoves++
-
           // food eaten is counted
           this.foodEaten++
 
@@ -157,10 +233,9 @@ export default {
           // turns clicked food score to null
           setTimeout(() => {
             box.foodScore = null
-          }, 700);
+          }, 300);
 
-        }else{
-
+        }
           // chracter is turned false in all boxes
           this.gridBoxes.forEach(e => {
             e.characterActive = false
@@ -171,7 +246,46 @@ export default {
 
           // number of moves is incremented
           this.noOfMoves++
+    },
+
+    // FUNCTION FOR ACTIVATEIN DIFFERENT FOODS
+    foodActiveFunction(characterNumber){
+
+      if (this.gridBoxes[characterNumber].foodActive) {
+        this.gridBoxes[characterNumber].foodActive = false
+        this.foodEaten++
+        this.health +=  parseInt(this.gridBoxes[characterNumber].foodScore.substring(1))
+        this.$refs.barStatus.style.width = `${this.health}%`
+        setTimeout(() => {
+          this.gridBoxes[characterNumber].foodScore = null
+        }, 150);
       }
+    },
+
+    keyPressMoveFunction(characterNumber){
+      this.noOfMoves++
+      this.gridBoxes.forEach(e => {
+      e.characterActive = false
+      })
+      this.gridBoxes[characterNumber].characterActive = true  
+    },
+
+    // FUNCTION CALL EITHER GAME OVER OR WIN AFTER CHECKING THE CONDITION
+    gameOverOrWin(){
+      // checking if number of moves is equal to maximum movement and food eaten is less than the total food
+        if (this.noOfMoves == this.maxMove && this.foodEaten < this.grid) {
+
+          // call the game over function
+          this.gameOver()
+
+        }
+
+        // checks if all food are eaten
+        if (this.foodEaten == this.grid) {
+          // call the barvo function
+          this.bravo()
+
+        }
     },
 
     // FUNTION CALLED WHEN GAME OVER CONDITION IS MET
@@ -186,6 +300,9 @@ export default {
         })
         // clear the grid value stored in the local storage
         localStorage.removeItem('storedGrid')
+
+        //remove event listen keyup from windows
+        window.removeEventListener('keyup', this.handleKeydown);
     },
 
     // FUNCTION CALLED WHEN GAME IS WON
@@ -204,7 +321,14 @@ export default {
 
         // clear grid stored in local storage
         localStorage.removeItem('storedGrid')
+
+        //remove event listen keyup from windows
+        window.removeEventListener('keyup', this.handleKeydown);
     },
+  },
+
+  created() {
+  	window.addEventListener('keyup', this.handleKeydown);
   },
 
   // MOUNTED FUNCTION RUNS A OUR PAGE IS BEEN MOUNTED
@@ -313,10 +437,13 @@ export default {
       }
     }
 
+  	// window.addEventListener('keyup', this.handleKeydown);
+
     // START TIME
     this.startTime()
 
   }
+
 }
 </script>
 
@@ -333,7 +460,11 @@ export default {
     background-position: center;
     color: #23144B;
     padding: 50px 20px;
-
+    .grid-wrapper h3{
+      display: none;
+      text-align: center;
+      margin-bottom: 10px;
+    }
     // GRID STYLES 
     .grid{
       padding: 30px 10px;
@@ -426,7 +557,7 @@ export default {
             position: absolute;
             top: 74px;
             animation-name: food-score-animate;
-            animation-duration: .7s;
+            animation-duration: .3s;
             animation-timing-function: ease-out;
           }
           .food{
@@ -587,7 +718,12 @@ export default {
   }
   @media (min-width: 992px) { 
      .game-play{
+       padding: 80px 20px;
+       .grid-wrapper h3{
+         display: block;
+       }
        .grid{
+        
          height: 100%;
        }
      }
