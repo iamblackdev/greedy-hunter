@@ -5,6 +5,7 @@
 
       <div class="grid">
 
+        <!-- GRID HEADER -->
         <div class="grid-header">
 
           <div class="game-grid-info">
@@ -27,7 +28,9 @@
           </div>
 
         </div>
+        <!-- GRID HEADER ENDS-->
 
+        <!-- GRID BOXES -->
         <div class="grid-boxes" ref="gridBoxes">
 
           <div v-for="gridbox in gridBoxes" :key="gridbox.id" @click="clickbox(gridbox)" class="box">
@@ -37,7 +40,9 @@
           </div>
               
         </div>
+        <!-- GRID BOXES ENDS -->
 
+        <!-- GRID BOTTOM -->
         <div class="grid-bottom" >
           <div class="maximum-moves">
             Maximum moves: {{ maxMove }}
@@ -46,6 +51,7 @@
             Total moves: {{ noOfMoves }}
           </div>
         </div>
+        <!-- GRID BOTTOM ENDS -->
 
       </div>
 
@@ -57,30 +63,34 @@
 <script>
 export default {
 
+  // DEFINING DATA VARIABLES
   data() {
     return {
-      grid: null,
-      gridBoxes: [],
-      noOfBoxes: null,
-      maxMove: null,
-      timer: null,
-      reactionTime: null,
-      minutes: 0,
-      seconds: 0,
-      randomNumberArray: [],
-      characterNumber: 0,
-      noOfMoves: 0,
-      foodEaten: 0,
-      health: 0,
+      grid: null, // NO OF GRID SELECTED
+      gridBoxes: [], // ARRAY OF GRID BOXES
+      noOfBoxes: null, // NUMBER OF BOXES TO BE DIPLAYED
+      maxMove: null, // MAXIMUM MOVES
+      noOfMoves: 0, // NUMBER OF MOVES
+      timeInMilliSeconds: null, // TIME IN MILLI SECONDS
+      minutes: 0, // MUNITES OF TIME USED
+      seconds: 0, // SECONDS
+      randomNumberArray: [], // ARRAY STORING RANDOM NUMBERS (USED FOR MAKING RANDOM FOOD AND CHARACTER ACTIVE)
+      characterNumber: 0, // THE ARRAY NUMBER OF THE FIRST ACTIVE CHRACTER 
+      foodEaten: 0, // NUMBER OF FOODS EATEN
+      health: 0, // HEALTH BAR VALUE
     }
   },
   methods:{
+
+    // FUNCTION FOR STARTIN TIME
     startTime(){
-      this.timer = setInterval(() => {
-        this.reactionTime += 1000;
-        this.millisToMinutesAndSeconds(this.reactionTime)
+      setInterval(() => {
+        this.timeInMilliSeconds += 1000;
+        this.millisToMinutesAndSeconds(this.timeInMilliSeconds)
       }, 1000);
     },
+
+    // FUNCTION FOR CONVERTING MILLISECONDS TO TIME
     millisToMinutesAndSeconds(millis) {
       this.minutes = Math.floor(millis / 60000);
       this.seconds = ((millis % 60000) / 1000).toFixed(0);
@@ -90,135 +100,215 @@ export default {
         this.seconds = '' + this.seconds
       }
     },
+
+    // THIS FUNCTION CALL WHEN THE EACH BOX IS CLICKED
     clickbox(box){
-
+      
+      // USING IF STSTEMENT TO CHECK IF CHARACTER CAN MOVE TO THE BOX CLICKED
       if(Math.abs(this.characterNumber - box.id) == 1 || Math.abs(this.characterNumber - box.id) == this.grid){
-        this.characterNumber = box.id
-        this.makeMove(box)
 
+        // assignment new character number
+        this.characterNumber = box.id
+
+        // if box cliked is valid? make move function calls (funcion for chracter movement)
+        this.makeMove(box)
+        
+        // checking if number of moves is equal to maximum movement and food eaten is less than the totl food
         if (this.noOfMoves == this.maxMove && this.foodEaten < this.grid) {
+
+          // call the game over function
           this.gameOver()
         }
+
+        // checks if all food are eaten
         if (this.foodEaten == this.grid) {
+          // call the barvo function
           this.bravo()
         }
       }
     },
+
+    // FUNCTION RESPONSIBLE FOR CHARACTER MOVEMENT
     makeMove(box){
+
+      // if food is active in box clicked
       if (box.foodActive) {
+          // the food is turned back to false
           box.foodActive = false
+
+          // chracter is turned false in all boxes
           this.gridBoxes.forEach(e => {
             e.characterActive = false
           })
-          box.characterActive = true
-          this.noOfMoves++
-          this.foodEaten++
-          this.health +=  parseInt(box.foodScore.substring(1))
 
+          // character if turnbed back to true in the clicked box
+          box.characterActive = true
+
+          // number of moves is incremented
+          this.noOfMoves++
+
+          // food eaten is counted
+          this.foodEaten++
+
+          // the health bar is increased by thre food score
+          this.health +=  parseInt(box.foodScore.substring(1))
           this.$refs.barStatus.style.width = `${this.health}%`
-          
+
+          // turns clicked food score to null
           setTimeout(() => {
             box.foodScore = null
           }, 700);
 
         }else{
+
+          // chracter is turned false in all boxes
           this.gridBoxes.forEach(e => {
             e.characterActive = false
           })
+
+          // character if turnbed back to true in the clicked box
           box.characterActive = true
+
+          // number of moves is incremented
           this.noOfMoves++
       }
     },
+
+    // FUNTION CALLED WHEN GAME OVER CONDITION IS MET
     gameOver(){
+
+        // push router new routes and send different data as props
         this.$router.push({name: 'gameStart', params: {
-          gameStatus: 'Game Over',
-          foodEaten: `Total Food: ${this.foodEaten} / ${this.grid}`,
-          timeSpent: `Time Spent: ${this.minutes}:${this.seconds} `
-        }
-      })
+            gameStatus: 'Game Over', // sending gameover text as props
+            foodEaten: `Total Food: ${this.foodEaten} / ${this.grid}`, // sending total food eaten
+            timeSpent: `Time Spent: ${this.minutes}:${this.seconds} ` // sending total time spent as props
+          }
+        })
+        // clear the grid value stored in the local storage
         localStorage.removeItem('storedGrid')
     },
+
+    // FUNCTION CALLED WHEN GAME IS WON
     bravo(){
+        // takes a little time to complete foodscore animation
         setTimeout(() => {
+
+          // pushing new routes and send different data as props
           this.$router.push({name: 'gameStart', params: {
-            gameStatus: 'Bravo',
-            foodEaten: '',
-            timeSpent: `Time Spent: ${this.minutes}:${this.seconds} `
+            gameStatus: 'Bravo', // sending bravo text as props
+            foodEaten: '', // food eaten not need, so sent an empty string
+            timeSpent: `Time Spent: ${this.minutes}:${this.seconds}` // sending total time pent as props
             }
           })
         }, 600);
+
+        // clear grid stored in local storage
         localStorage.removeItem('storedGrid')
     },
   },
-  mounted(){
-    // RETRIVING DATA FROM LOCAL STORAGE
-    this.grid = localStorage.getItem('storedGrid');
-    // console.log(this.$refs.gridBoxes.style)
 
-    // SETTING THE GRID TEMPLATE
+  // MOUNTED FUNCTION RUNS A OUR PAGE IS BEEN MOUNTED
+  mounted(){
+
+    // retriving grid data from local storage
+    this.grid = localStorage.getItem('storedGrid');
+
+
+    // setting up grid template for the boxes
     this.$refs.gridBoxes.style.gridTemplateColumns = `repeat(${this.grid}, 1fr)`
     this.$refs.gridBoxes.style.gridTemplateRows = `repeat(${this.grid}, 1fr)`
 
-    // GETTING TOTAL NUMBER OF GRID BOXES
+    // getting to tal number of grid boxes needed
     this.noOfBoxes = this.grid * this.grid
 
-    //GETTING MAXIMUM NUMBER OF MOVES
+    // getting maximum number of moves
     this.maxMove = Math.round(this.noOfBoxes / 2)
 
-    // CREATING AN ARRAY EQUAL TO THE TOTAL NUMBER OF BOXES
+    // creating an array (gridBoxes) to hold objects containing different data for the boxes
     for (let i = 0; i < this.noOfBoxes; i++){
+      // asiging value to each oject
       this.gridBoxes.push({
-        id: i,
-        foodActive: false,
-        characterActive: false,
-        foodScore: null
+        id: i, // id number
+        foodActive: false, // food active
+        characterActive: false, // character active
+        foodScore: null // food score
 
       })
     }
 
 
     // CREATING SCORES FOR ACTIVE FOOD
-      let max = 100;
-      let scores = [];
-      let count = this.grid
-      let diffOfArray = 0
+
+    //varibles
+      let max = 100; // maximum number of score
+      let scores = []; // use for storing each scores
+      let count = this.grid // used in the loop for counting
+      let diffOfArray = 0 // storing difference of the array
       for (let i = 1; i < this.grid; i++) {
+
+        // storing different scores in the array
         scores[i] = randombetween(1, max-(count--)+diffOfArray)
+
+        // getting difference of the array
         diffOfArray = scores.reduce((total, diff) => total - diff,0)  
       }
+      // asiging the first score of the array
       scores[0] = max + diffOfArray
 
+      // function called when assigning scores to the array
       function randombetween(min, max) {
         return Math.floor(Math.random()*(max-min+1)+min);
       }
 
 
     // MAKE RANDOM FOOD ACTIVE
-    let newgridNumber = this.grid
-    for (let i = 1; i <= newgridNumber; i++) {
+    let loopcount = this.grid // used for food active loop coounting
+    for (let i = 1; i <= loopcount; i++) {
+
+      // getting random number
         let randomNumber = Math.floor(Math.random() * this.noOfBoxes)
+
+        // checking if random number is already included in the array
         if (this.randomNumberArray.includes(randomNumber)) {
-          newgridNumber++
+          // if included increase loop count
+          loopcount++
         }else{
+          // is not puh the new number into the array
           this.randomNumberArray.push(randomNumber)
+
+          // also make food active using the number just gotten
           this.gridBoxes[randomNumber].foodActive = true
         }
       }
 
     //ATTACHING SCORES TO EACH FOOD
     for (let i = 0; i < scores.length; i++) {
+      
+      // since the numbers from the random number array are used in making random food active
+      // also used them in assiging scores using scores in the scores array
       this.gridBoxes[this.randomNumberArray[i]].foodScore =  `+${scores[i]}`
     }
 
 
     // MAKE CHARACTER ACTIVE
-    let characterLoop= 1
+    let characterLoop= 1 // used for character loop counting
     for (let i  = 1; i <= characterLoop; i++) {
+
+        // getting character number (for making character active)
         this.characterNumber = Math.floor(Math.random() * this.noOfBoxes)
+
+        // since we dont want a charcter and food be active in same box
+        //we use the random array number used in making different food active to make the character active
+        // if number is already included
       if (this.randomNumberArray.includes(this.characterNumber)) {
+        // increment loop counter 
         characterLoop++
       }else{
+
+        //storing chracter number in random number array
         this.randomNumberArray.push(this.characterNumber)
+
+        // make the character active
         this.gridBoxes[this.characterNumber].characterActive = true
       }
     }
@@ -244,6 +334,7 @@ export default {
     color: #23144B;
     padding: 50px 20px;
 
+    // GRID STYLES 
     .grid{
       padding: 30px 10px;
       background-color: white;
@@ -252,12 +343,9 @@ export default {
       max-width: 706px;
       margin: 0 auto;
       position: relative;
-      animation-name: grid-animations;
-      animation-duration: .5s;
-      animation-timing-function: ease;
-      animation-fill-mode: forwards;    
-      
-      
+      animation: grid-animations .5s ease 0s 1 normal forwards;
+
+      // GRID-HEADER STYLES 
       &-header{
         display: flex;
         flex-wrap: wrap;
@@ -319,6 +407,7 @@ export default {
 
       }
 
+      // GRID BOXEX STYLES 
       &-boxes{
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -343,11 +432,7 @@ export default {
           .food{
             width: 80%;
             transform: scale(0);
-            animation-name: grid-animations;
-            animation-duration: .5s;
-            animation-timing-function: ease;
-            animation-delay: .6s;
-            animation-fill-mode: forwards;  
+            animation: grid-animations .5s ease .6s 1 normal forwards; 
           }
           .character{
             width: 80%;
@@ -355,6 +440,7 @@ export default {
         }
       }
 
+      // GRID BOTTOM STYES
       &-bottom{
         margin-top: 30px;
         display: flex;
@@ -363,6 +449,8 @@ export default {
 
     }
   }
+
+  // GRID ANIMATION
   @keyframes grid-animations {
   0%{ transform: scale(0); opacity: 0;}
   10%{ transform: scale(.1); opacity: .1;}
@@ -375,7 +463,9 @@ export default {
   80%{ transform: scale(.8); opacity: .8;}
   90%{ transform: scale(.9); opacity: .9;}
   100%{ transform: scale(1); opacity: 1;}
-}
+  }
+
+  // FOOD ANIMATIONS
   @keyframes food-score-animate {
     from{right: 12%; opacity: 0;}
     50%{right: 15%; opacity: 1;}

@@ -6,12 +6,13 @@
       <!--  -->
       <div>
         
-        <!--  -->
-        <div :class="{gameHeading: startAnimations}">
+        <!-- GAME HEAGING -->
+        <div class="game-heading" :class="{gameHeading: startAnimations}">
           <img src="@/assets/heading-character.png" alt="">
         </div>
+        <!-- GAME HEADING ENDS -->
 
-        <!--  -->
+        <!--GAME STSTUS  -->
         <div class="game-status" :class="{animateGameStatus: startAnimations}">
           <div class="game-status-header">
             <h1>{{ status }}</h1>
@@ -21,21 +22,28 @@
             <p>{{ status3 }}</p>
           </div>
         </div>
-
-        <!--  -->
+        <!--GAME STATUS ENDS HERE  -->
+        
+        
+        <!--GAME ACTIONS  -->
         <div class="game-action" :class="{animateGameAction: startAnimations}">
           <div class="select-grid">
             <form @submit.prevent="startGame">
               <div class="error" v-if="error">
                 Maximum grid = 12 <br> Minimum grid = 5
               </div>
-              Game grid: 
-              <input type="number" v-model="grid" min="5" max="12" @keyup="checkInput">
-
-              <div><button class="btn" :disabled="error">Start Game</button></div>
+              <div class="input-wrapper">
+                Game grid:
+                <input type="number" v-model="grid" min="5" max="12" @keyup="checkInput">
+                <i class="fa fa-caret-up" @click="increaseGrid"></i>
+                <i class="fa fa-caret-down" @click="reduceGrid"></i>
+              </div> 
+      
+              <button class="btn" :disabled="error">Start Game</button>
             </form>
           </div>
         </div>
+        <!-- GAME ACTIONS ENDS HERE -->
 
 
       </div>
@@ -51,18 +59,41 @@
 // @ is an alias to /src
 
 export default {
+  // RECEIVING PROPS FROM OTHER COMPONENT
   props:['gameStatus', 'timeSpent', 'foodEaten'],
+
+  // DECLEARING VARIABLES
   data() {
+
+    // DEFINING DATA VARIABLES
     return {
-      grid: 5,
-      error: false,
-      status: 'Greedy Hunter',
-      status2: 'The aim is to eat all the food in record time',
-      status3: 'Confiure your game grid below 👇🏼',
-      startAnimations: false
+      grid: 5, // GRID VALUE
+      error: false, // ERROR BLOCK SET TO FALSE
+      status: 'Greedy Hunter', // HEADING
+      status2: 'The aim is to eat all the food in record time', // TEXT 
+      status3: 'Confiure your game grid below 👇🏼', // TEXT
+      startAnimations: false // ANIMATIONS VARIABLE
     }
   },
   methods: {
+
+    //  FUNCTION FOR INCREASING INPUT (GRID SELECT)
+    increaseGrid(){
+      this.grid++
+      if (this.grid > 12) {
+        this.grid = 12
+      }
+    },
+
+    //  FUNCTION FOR REDUCING INPUT (GRID SELECT)
+    reduceGrid(){
+      this.grid--
+      if (this.grid < 5) {
+        this.grid = 5
+      }
+    },
+
+    // FUNCTION FOR CHECKING THE MAXIMUN AND MINIMUM VALUE
     checkInput () {
       if (this.grid > 12 || this.grid < 5){
         this.error = true
@@ -70,20 +101,27 @@ export default {
         this.error = false
       }
     }, 
+
+    // FUNCTION FOR STARTING OF GAME
     startGame(){
 
       // STORE THE NUMBER OF GRID IN LOCALSTORAGE
       localStorage.setItem('storedGrid', this.grid)
       
+      //START RUNING OF ANIMATION 
       this.startAnimations = true
+
+      // DELAY ROUTER PUSH FOR ANIMATION TO END
       setTimeout(() => {
-        // ROUTER PUSH TO GAMEPLAY
+        // ROUTER PUSH TO GAMEPLAY SENDING GRID NEEDED AS PROPS
         this.$router.push({name: 'gamePlay', params:{ grid:this.grid}})  
       }, 2100);
 
     },
   },
   mounted() {
+
+      // CHECKING IF GAME STATUS IS RECEIVED VIA PROPS BEFORE ASSIGNING
       if (this.gameStatus) {
         this.status = this.gameStatus
         this.status2 = this.foodEaten
@@ -99,6 +137,7 @@ export default {
 <style lang="scss">
 @import '../scss/config';
 
+// GAME START STYLES
 .game-start{
   font-family: 'Inter', sans-serif;
   width: 100%;
@@ -107,17 +146,23 @@ export default {
   padding-top: 10px;
   background-color: $primary-color;
 
-  .gameHeading{
+//GAME HEADING STYLES 
+  .game-heading{
     position: relative;
-    animation-name: animations;
-    animation-duration: .7s;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
-    
+    transform: scale(0);
+    animation: animate-in .7s ease 0s 1 reverse forwards; 
+  }
+  .game-heading.gameHeading{
+    position: relative;
+    transform: scale(1);
+    animation: animate-out .7s ease 0s 1 normal forwards;
   }
 
+// GAME STATUS STYLES
   .game-status{
     margin: 20px 0;
+    transform: scale(0);
+    animation: animate-in .7s ease .7s 1 reverse forwards;
     &-header{
       color: $secondary-color;
       font-style: normal;
@@ -133,32 +178,44 @@ export default {
   }
   .game-status.animateGameStatus{
     position: relative;
-    animation-name: animations;
-    animation-duration: .7s;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
-    animation-delay: .7s;
+    transform: scale(1);
+    animation: animate-out .7s ease .7s 1 normal forwards;
   }
 
+// GAME ACTIONS STYLES
   .game-action{
     color: #EE8D94;
+    position: relative;
+    transform: scale(0);
+    animation: animate-in .7s ease 1.4s 1 reverse forwards;
+
 
     .error{
       font-size: 13px;
       color: red;
       margin-bottom: 7px;
     }
-
-    input{
-      margin-left: 20px;
-      height: 37px;
-      width: 100px;
-      background-color: transparent;
-      padding: 10px;
-      color: white;
-      border: 4px solid #EE8D94;
-      box-sizing: border-box;
-      border-radius: 5px;
+    .input-wrapper{
+      position: relative;
+      .fa{
+        display: none;
+      }
+      input{
+        margin-left: 20px;
+        height: 37px;
+        width: 40px;
+        background-color: transparent;
+        padding: 10px;
+        color: white;
+        border: 4px solid #EE8D94;
+        box-sizing: border-box;
+        border-radius: 5px;
+      }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        display: none;
+        -webkit-appearance: none;
+      }
     }
     .btn{
       margin-top: 30px;
@@ -177,14 +234,27 @@ export default {
   }
   .game-action.animateGameAction{
     position: relative;
-    animation-name: animations;
-    animation-duration: .7s;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
-    animation-delay: 1.4s;
+    transform: scale(1);
+    animation: animate-out .7s ease 1.4s 1 normal forwards;
   }
 }
-@keyframes animations {
+
+// ANIMATIONS FOR ELEMENTS COMING IN
+@keyframes animate-in {
+  0%{ transform: scale(1); opacity: 1;}
+  10%{ transform: scale(1.1); opacity: 1;}
+  20%{ transform: scale(1.2); top: 0px; opacity: 1;}
+  30%{ transform: scale(1.1); top: 0px; opacity: 1;}
+  40%{ transform: scale(1); top: 5px; opacity: 1;}
+  50%{ transform: scale(.9); top: 10px; opacity: .9;}
+  60%{ transform: scale(.7); top: 15px; opacity: .7;}
+  70%{ transform: scale(.5); top: 20px; opacity: .5;}
+  80%{ transform: scale(.3); top: 25px; opacity: .3;}
+  90%{ transform: scale(.2); top: 30px; opacity: .2;}
+  100%{ transform: scale(.1); top: 35px; opacity: 0;}
+}
+// ANIMATIONS FOR ELEMENTS GOIN OUT
+@keyframes animate-out {
   0%{ transform: scale(1); opacity: 1;}
   10%{ transform: scale(1.1); opacity: 1;}
   20%{ transform: scale(1.2); top: 0px; opacity: 1;}
@@ -229,6 +299,34 @@ export default {
 
 
  }
+ @media (min-width: 992px) {
+   .game-start{
+     .game-action{
+       .input-wrapper{
+        .fa{
+          display: inline-block;
+        }
+        .fa-caret-up{
+          position: relative;
+          right: 27px;
+          top: -3px;
+          font-size: 25px;
+          cursor: pointer;
+        }
+        .fa-caret-down{
+          position: relative;
+          top: 10px;
+          right: 41px;
+          font-size: 25px;
+          cursor: pointer;
+        }
+        input{
+          width: 100px;
+        }
+      }
+     }
+   }
+ }
 @media (min-width: 1200px) { 
   body{
     font-size: 20px;
@@ -251,13 +349,14 @@ export default {
     }
     .game-action{
       margin-top: 50px;
+
+      
       .btn{
-      padding: 20px 80px;
-      font-size: 20px;
-     }
+        padding: 20px 80px;
+        font-size: 20px;
+      }
     }
   }
- }
+}
 
-/* Chrome, Safari, Edge, Opera */
 </style>

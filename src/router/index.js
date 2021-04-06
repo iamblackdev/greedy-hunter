@@ -13,7 +13,11 @@ const routes = [
     path: '/gameplay',
     name: 'gamePlay',
     component: gamePlay,
+
+    // REDIRECTING USER WHO ROUTER INTO THE PAGE WITHPOUT SELECTING GRID SIZE
     beforeEnter: (to, from, next) => {
+
+      // checking if grid size is selected
       if (to.params.grid || localStorage.getItem('storedGrid')) {
         next()
       } else {
@@ -22,7 +26,7 @@ const routes = [
       
     }
   },
-  // CATCHING ALL 404 PAGE 
+  // CATCHING ALL 404 PAGE AND REDIRECTING THEM BACK TO THE HOME PAGE
   {
     path: '/:catchAll(.*)',
     redirect: '/'
