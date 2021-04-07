@@ -295,7 +295,8 @@ export default {
         this.$router.push({name: 'gameStart', params: {
             gameStatus: 'Game Over', // sending gameover text as props
             foodEaten: `Total Food: ${this.foodEaten} / ${this.grid}`, // sending total food eaten
-            timeSpent: `Time Spent: ${this.minutes}:${this.seconds} ` // sending total time spent as props
+            timeSpent: `Time Spent: ${this.minutes}:${this.seconds}`, // sending total time spent as props
+            buttonText: 'Start again'
           }
         })
         // clear the grid value stored in the local storage
@@ -314,7 +315,8 @@ export default {
           this.$router.push({name: 'gameStart', params: {
             gameStatus: 'Bravo', // sending bravo text as props
             foodEaten: '', // food eaten not need, so sent an empty string
-            timeSpent: `Time Spent: ${this.minutes}:${this.seconds}` // sending total time pent as props
+            timeSpent: `Time Spent: ${this.minutes}:${this.seconds}`, // sending total time spent as props
+            buttonText: 'Start again'
             }
           })
         }, 600);

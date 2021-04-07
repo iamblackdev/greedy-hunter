@@ -39,7 +39,7 @@
                 <i class="fa fa-caret-down" @click="reduceGrid"></i>
               </div> 
       
-              <button class="btn" :disabled="error">Start Game</button>
+              <button class="btn" :disabled="error">{{ btnText }}</button>
             </form>
           </div>
         </div>
@@ -60,7 +60,7 @@
 
 export default {
   // RECEIVING PROPS FROM OTHER COMPONENT
-  props:['gameStatus', 'timeSpent', 'foodEaten'],
+  props:['gameStatus', 'timeSpent', 'foodEaten', 'buttonText'],
 
   // DECLEARING VARIABLES
   data() {
@@ -72,7 +72,8 @@ export default {
       status: 'Greedy Hunter', // HEADING
       status2: 'The aim is to eat all the food in record time', // TEXT 
       status3: 'Confiure your game grid below 👇🏼', // TEXT
-      startAnimations: false // ANIMATIONS VARIABLE
+      startAnimations: false, // ANIMATIONS VARIABLE
+      btnText: 'Start Game'
     }
   },
   methods: {
@@ -126,6 +127,7 @@ export default {
         this.status = this.gameStatus
         this.status2 = this.foodEaten
         this.status3 = this.timeSpent
+        this.btnText = this.buttonText
       }
     },
 }
